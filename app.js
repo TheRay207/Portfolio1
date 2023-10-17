@@ -90,7 +90,7 @@ app.post('/auth', function (request, response) {
         `;
 
         // Query MySQL database to confirm user credentials
-        appDbConnection.query(authQuery, [username, password], function (error, results) {
+        deployedAppDbConnection.query(authQuery, [username, password], function (error, results) {
             // If error occurs during the query
             if (error) {
               response.send('An error occurred while processing your request.');
@@ -124,7 +124,7 @@ app.get('/dashboard', function (request, response) {
         ORDER BY t.serial_number;
     `;
 
-    appDbConnection.query(transactionsQuery, [username], function (error, results) {
+    deployedAppDbConnection.query(transactionsQuery, [username], function (error, results) {
         if (error) {
             console.error('Error querying the database: ', error);
             return results.status(500).send('Internal Server Error');
