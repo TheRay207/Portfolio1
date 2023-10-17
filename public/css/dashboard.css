@@ -1,0 +1,147 @@
+/*
+========================
+Page Font
+========================
+*/
+@font-face {
+    font-family: 'Interstate Light';
+    src: url(../assets/Interstate_fonts/Interstate-light.ttf);
+    font-style: normal;
+    font-weight: 300;
+}
+
+@font-face {
+    font-family: 'Interstate';
+    src: url(../assets/Interstate_fonts/Interstate-regular.ttf);
+    font-style: normal;
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: 'Interstate';
+    src: url(../assets/Interstate_fonts/Interstate-regular-italic.ttf);
+    font-style: italic;
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: 'Interstate';
+    src: url(../assets/Interstate_fonts/Interstate-bold.ttf);
+    font-style: normal;
+    font-weight: bold;
+}
+
+/*
+========================
+Overlay Modal
+========================
+*/
+.modal-body {
+    color: aliceblue;
+    font-family: 'Interstate Light', sans-serif;
+}
+.modal .modal-content {
+    background: #273456
+}
+
+.modal .modal-footer .btn {
+    background: #056DAE;
+  }
+
+/*
+========================
+Page Body
+========================
+*/
+body {
+    font-family: 'Interstate', sans-serif;
+    background: rgb(238, 241, 240);
+}
+
+#logo {
+    background: linear-gradient(to top, rgb(1, 83, 144), rgb(0,174, 226));
+    height: 50px;
+}
+
+/*
+========================
+Navbar
+========================
+*/
+#nav-bar {
+    background: rgb(254, 254, 254);
+    height: 55px;
+}
+
+/*
+========================
+Welcome banner
+========================
+*/
+#welcome-banner-row {
+    background: rgb(254, 254, 254);;
+}
+
+.welcome-message {
+    padding-top: 15px;
+    font-size: large;
+    font-weight: bold;
+}
+
+.login-info {
+    font-size: smaller;
+}
+
+#prof-settings {
+    font-weight: bold;
+    color: #056DAE;
+    text-decoration: none;
+}
+
+.fico-score {
+    font-size: smaller;
+    color: #056DAE
+}
+
+/*
+========================
+Balance Info Row
+========================
+*/
+#balance-info-row {
+    background: rgb(254, 254, 254);
+    font-size: small;
+}
+
+#curr-balance-fig {
+    font-size: x-large;
+}
+
+#calculated-how {
+    color: #056DAE;
+    text-decoration: none;
+}
+
+#make-payment-button {
+    background-color: #056DAE;
+    padding: 3px 5px;
+    font-weight: normal;
+}
+
+#limits-pays-rates-container {
+    background: rgb(254, 254, 254);  
+}
+
+/*
+========================
+Transaction Table
+========================
+*/
+#trans-table-container {
+    background: rgb(254, 254, 254);
+}
+
+#table-container {
+    background: #273456;
+    color: aliceblue;
+}

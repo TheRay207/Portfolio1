@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credit Card, Banking, Mortgage, Personal Loans | Citi.com</title>
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+    <script src="https://kit.fontawesome.com/9ee6416a3e.js" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/css/homepage.css">
+</head>
+<body>
+    <div class="container-fluid justify-content-start">
+        <img class="ps-lg-4" src="/assets/citiredesign.svg" alt="Citi logo">
+    </div>
+    <nav id="nav-bar" class="nav navbar navbar-expand-lg">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="container navbar-nav nav-pills">
+              <a class="nav-link ps-5 me-3" href="#">Credit Cards</a>
+              <a class="nav-link me-3" href="#">Banking</a>
+              <a class="nav-link me-3" href="#">Lending</a>
+              <a class="nav-link me-3" href="#">Investing</a>
+              <a class="nav-link me-3" href="#">Wealth Management</a>
+              <a class="nav-link" href="#">Open an Account <span id="angle-brace">&#10095;</span></a>
+            </div>          
+        </div>
+        <span class="navbar-text pe-3">
+            <button id="nav-text" type="button" class="btn" data-bs-toggle="button"><i class="me-2 fa-solid fa-magnifying-glass fa-flip-horizontal fa-lg" style="color: #fdfdfd;"></i> How can we help?</button>
+        </span>
+    </nav>
+    <div class="hero-container container-fluid" style="background-image: url(/assets/hero-background.jpg);">
+        <div class="row">
+            <div id="sign-on-form" class="d-flex col-12 col-lg-4 justify-content-md-center order-lg-last">
+                <form action="/auth" method="post">
+                    <div class="hero-signon text-center">
+                        <div class="form-row">
+                            <div class="col-6">
+                                <label for="user-id" class="form-label">User ID</label>
+                            </div>
+                            <div class="col-6">
+                                <label for="password" class="form-label ps-3">Password</label>
+                            </div>
+                        </div>                    
+                        <div class="form-row mb-2">
+                            <div class="d-flex row">
+                                <div class="col-6">
+                                    <input type="text" name="userId" class="form-control" id="user-id" placeholder="User ID" aria-label="User ID" onfocus="this.placeholder = ''" onblur="this.placeholder = 'User ID'" required>
+                                </div>
+                                <div class="col-6">
+                                    <div class="input-group">
+                                        <input data-toggle="password" type="password" name="password" class="form-control" id="password" placeholder="Password" aria-label="Password" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Password'" required>
+                                        <script>
+                                            const togglePassword = document.querySelector('#togglePassword');
+                                            const password = document.querySelector('#password');
+                                            togglePassword.addEventListener('click', () => {
+                                                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                                                password.setAttribute('type', type);
+                                                this.classList.toggle('bi-eye');
+                                            });
+                                        </script>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="row align-items-left">
+                                <div class="col-6">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="remember-user-id">
+                                        <label class="custom-control-label ps-1 text-nowrap" for="remember-user-id">Remember User ID</label>
+                                        <p class="text-nowrap" id="message" style="display: none;">Do not select if you are using a public computer.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>  
+                        <div class="d-grid gap-2 pt-4">
+                            <div class="d-grid gap-2 d-md-block">
+                                <button id="sign-on-button" class="btn btn-primary btn-lg btn-block" type="submit">Sign On</button>
+                            </div>
+                        </div> 
+                        <div class="row form-row">
+                            <div id="help-links" class="d-flex align-items-center pt-4">
+                                <div class="col-6">
+                                    <a href="https://online.citi.com/US/ag/bank/registration/set-up-online-access">Register</a> / <a href="https://online.citi.com/US/ag/activate/index">Activate</a>
+                                </div>
+                                <div class="col-6 text-nowrap">
+                                    Forgot <a href="https://online.citi.com/US/ag/forgot-userid-pwd/account-type?fuipFlowInd=userID">User ID</a> or 
+                                    <a href="https://online.citi.com/US/ag/forgot-userid-pwd/account-type?fuipFlowInd=pwd">Password</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="row-6" class="form-row mt-4 pt-3 pb-3">
+                            <div class="col text-center">
+                                <i class="fa-solid fa-qrcode fa-lg" style="color: #056dae;"></i> <span class="passwordless ps-1">Passwordless Sign On</span>
+                            </div>
+                        </div>
+                    </div>
+                </form> 
+            </div>
+            <div class="d-flex col-12 col-lg-4 justify-content-md-center">
+                <div class="hero-cc">
+                    <p>
+                        <h4>CITI<sup>&reg;</sup> CREDIT CARDS</h4>
+                        <h2 style="font-weight: bold;">Choose the right Citi<sup>&reg;</sup><br>credit card for you</h2>
+                        <h6>Whether you want Cash Back, Great Airline Miles, Rewards for Costco Members, or a Low Intro Rate, the choice is all yours.</h6>
+                    </p>
+                    <div class="learn-more-container">
+                        <a id="learn-more" class="btn btn-primary" href="https://www.citi.com/credit-cards/compare/view-all-credit-cards?afc=105&intc=1~1~52~6~BANR~1~mpc_Default_citicomREDPE_aug2016~OMPC105" role="button">Learn More</a>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex col-12 col-lg-4 justify-content-md-center">
+                  <img class="hero-img" src="/assets/7715_Hero_MPC.png" alt="Citi credit cards" width="350" height="220">
+            </div>
+        </div>
+    </div>      
+    <script>
+        const rememberUserIdCheckbox = document.getElementById('remember-user-id');
+      
+        rememberUserIdCheckbox.addEventListener('change', function () {
+          const message = document.getElementById('message');
+          if (rememberUserIdCheckbox.checked) {
+            message.style.display = 'block';
+          } else {
+            message.style.display = 'none';
+          }
+        });
+    </script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://unpkg.com/bootstrap-show-password@1.2.1/dist/bootstrap-show-password.min.js"></script>      
+</body>
+</html>

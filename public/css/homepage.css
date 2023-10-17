@@ -1,0 +1,161 @@
+/*
+========================
+Page Font
+========================
+*/
+@font-face {
+    font-family: 'Interstate Light';
+    src: url(../assets/Interstate_fonts/Interstate-light.ttf);
+    font-style: normal;
+    font-weight: 300;
+}
+
+@font-face {
+    font-family: 'Interstate';
+    src: url(../assets/Interstate_fonts/Interstate-regular.ttf);
+    font-style: normal;
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: 'Interstate';
+    src: url(../assets/Interstate_fonts/Interstate-regular-italic.ttf);
+    font-style: italic;
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: 'Interstate';
+    src: url(../assets/Interstate_fonts/Interstate-bold.ttf);
+    font-style: normal;
+    font-weight: bold;
+}
+
+/*
+========================
+Page Body
+========================
+*/
+body {
+    font-family: 'Interstate', sans-serif;
+    background: #FDFDFD;
+}
+
+/*
+========================
+Navbar
+========================
+*/
+#nav-bar,
+#nav-bar-2,
+#navbar,
+#nav-bar0 {
+    background-color: #002D72;
+}
+
+.nav-link,
+.navbar-text,
+#nav-text,
+#sign-on-toggle {
+    font-family: 'Interstate Light', sans-serif;
+    color: #FDFDFD;
+    font-weight: bold;
+}
+
+#angle-brace {
+    font-size: large;
+}
+
+/*
+========================
+Page Hero
+========================
+*/
+#hero {
+    background-image: url("/Assets/hero-background.jpg");
+}
+
+h1 {
+    font-weight: bold;
+}
+
+h5,
+h6 {
+    font-family: 'Interstate Light', sans-serif;
+    font-size: medium;
+}
+
+.hero-cc {
+    margin-top: 60px;
+    margin-left: 20px;
+}
+
+#learn-more {
+    background-color: #056DAE;
+    margin-top: 10px;
+    padding: 10px 50px;
+    font-size: medium;
+}
+
+.hero-img {
+    margin-top: 95px;
+    margin-bottom: 30px;
+    margin-left: 0;
+}
+
+
+.form-row .col-6 {
+    text-align: left;
+}
+
+.form-label {
+    font-size: small;
+}
+
+#user-id,
+#password {
+    font-style: italic;
+}
+
+#show-password {
+    border: #FDFDFD;
+}
+
+.custom-control-input {
+    transform: scale(2);
+    /* outline: 1px solid #056DAE; */
+}
+
+.custom-control-label {
+    
+    font-size: small;
+}
+
+#message {
+    font-family: 'Interstate Light';
+    font-size: x-small;
+}
+
+#sign-on-button {
+    background-color: #056DAE;
+    font-weight: bold;
+}
+
+#help-links {
+    font-size: small;
+    font-family: 'Interstate Light';
+}
+
+.passwordless {
+    color: #056DAE;
+    font-family: 'Interstate';
+    font-weight: bold;
+}
+
+#row-6 {
+    background: #EFF3F8;
+}
+
+.hero-signon {
+    margin-top: 45px;
+}
