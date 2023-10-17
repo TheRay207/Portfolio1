@@ -10,7 +10,7 @@ import path from 'path';
 
 // import { use } from 'passport';
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT // || 3000;
 const app = express();
 
 // Convert import.meta.url to a file path
@@ -83,9 +83,10 @@ app.post('/auth', function (request, response) {
 
     if (username && password) {
          const authQuery = `
-            SELECT user_id, first_name, last_name, username FROM users
+            SELECT customer_id, first_name, last_name, username
+            FROM users
             WHERE username = ?
-            AND password_hash = ?
+            AND password = ?
         `;
 
         // Query MySQL database to confirm user credentials
@@ -117,8 +118,8 @@ app.get('/dashboard', function (request, response) {
     // Query MySQL database to retrieve user information
     const transactionsQuery = `
         SELECT t.serial_number, t.date_of_transaction, t.transaction_description, t.amount, t.user_id, u.first_name, u.last_name
-        FROM user_transaction_records AS t
-            JOIN users AS u ON t.user_id = u.user_id
+        FROM user_1_transaction AS t
+            JOIN users AS u ON t.user_id = u.customer_id
         WHERE u.username = ?
         ORDER BY t.serial_number;
     `;
