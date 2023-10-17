@@ -4,6 +4,7 @@ import mysql from 'mysql';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import session from 'express-session';
+import MySQLStore from 'express-mysql-session';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import path from 'path';
@@ -28,6 +29,13 @@ const publicDirPath = path.join(currentDirName, 'public');
   database: 'banking_app'
 }); */
 
+const sessionStore = new MySQLStore({
+    host: process.env.MYSQL_ADDON_HOST,
+    user: process.env.MYSQL_ADDON_USER,
+    password: process.env.MYSQL_ADDON_PASSWORD,
+    database: process.env.MYSQL_ADDON_DB,
+});
+
 const deployedAppDbConnection = mysql.createConnection({
     host     : process.env.MYSQL_ADDON_HOST,
     database : process.env.MYSQL_ADDON_DB,
@@ -44,11 +52,14 @@ deployedAppDbConnection.connect((error) => {
   console.log('Connected to MySQL database');
 });
 
-app.use(session({
-	secret: 'secret',
-	resave: false,
-	saveUninitialized: false
-}));
+app.use(
+    session({
+	    secret: 'secret',
+	    resave: false,
+	    saveUninitialized: false,
+        store: sessionStore,
+    })
+);
 
 // app.use(express.static(currentDirName + 'public', { index: 'index.ejs' }));
 app.use(express.static(publicDirPath, { index: 'index.ejs' }));
