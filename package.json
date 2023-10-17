@@ -5,7 +5,7 @@
   "type": "module",
   "main": "app.js",
   "scripts": {
-    "start": "npm run start",
+    "start": "node app.js",
     "devstart": "nodemon app.js",
     "serverstart": "$ENV:DEBUG = 'citionline:*'; npm run devstart",
     "test": "jest"
