@@ -1,12 +1,13 @@
 import express from 'express';
-import mysql from 'mysql2';
+// import mysql2 from 'mysql2';
+import mysql from 'mysql';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
-import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
+
 // import { use } from 'passport';
 
 const port = process.env.PORT || 3000;
@@ -20,15 +21,22 @@ const publicDirPath = path.join(currentDirName, 'public');
 // console.log('Current directory:', currentDirName); 
 
 // MySQL database connection configuration
-export const appDbConnection = mysql.createConnection({
+/* export const appDbConnection = mysql2.createConnection({
   host: 'localhost',
   user: 'Kaygeea',
   password: 'gammaray8',
   database: 'banking_app'
+}); */
+
+const deployedAppDbConnection = mysql.createConnection({
+    host     : process.env.MYSQL_ADDON_HOST,
+    database : process.env.MYSQL_ADDON_DB,
+    user     : process.env.MYSQL_ADDON_USER,
+    password : process.env.MYSQL_ADDON_PASSWORD
 });
 
 // Connect to the MySQL database
-appDbConnection.connect((error) => {
+deployedAppDbConnection.connect((error) => {
   if (error) {
     console.error('Error encountered while attempting to connect to Database: ' + err.message);
     return;
