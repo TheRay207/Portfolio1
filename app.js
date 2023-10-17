@@ -38,7 +38,7 @@ const deployedAppDbConnection = mysql.createConnection({
 // Connect to the MySQL database
 deployedAppDbConnection.connect((error) => {
   if (error) {
-    console.error('Error encountered while attempting to connect to Database: ' + err.message);
+    console.error('Error encountered while attempting to connect to Database: ' + error.message);
     return;
   }
   console.log('Connected to MySQL database');
