@@ -19,7 +19,7 @@ const uri = 'mongodb+srv://user001:tbuKSxq2uJXzQzZe@cluster0.tj2glrw.mongodb.net
 const publicDirPath = path.join(currentDirName, 'public');
 
 // Setup connection to MongoDB
-mongoose.connect(process.env.MONGODB_CONN_URI, {
+mongoose.connect(uri, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   });
