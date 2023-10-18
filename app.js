@@ -15,6 +15,7 @@ export const app = express();
 // Convert import.meta.url to a file path
 const currentFilePath = fileURLToPath(import.meta.url);
 const currentDirName = dirname(currentFilePath);
+const uri = 'mongodb+srv://user001:tbuKSxq2uJXzQzZe@cluster0.tj2glrw.mongodb.net/?retryWrites=true&w=majority' || process.env.MONGODB_CONN_URI;
 const publicDirPath = path.join(currentDirName, 'public');
 
 // Setup connection to MongoDB
