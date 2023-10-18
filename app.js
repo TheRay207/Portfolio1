@@ -98,6 +98,7 @@ app.post('/auth', async function (request, response) {
 app.get('/dashboard', async function (request, response) {
     try {
         const username = request.body.userId;
+        console.log(username);
     
         // Use Mongoose to query the MongoDB collections
         const transactions = mongoose.connection.collection('user_1001_transactions')
