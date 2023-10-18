@@ -44,7 +44,7 @@ app.use(
 app.use(express.static(publicDirPath, { index: 'index.ejs' }));
 
 if (process.env.NODE_ENV === 'development') {
-    app.use(logger('dev'));
+
 }
 app.use(cookieParser());
 app.use(express.json());
