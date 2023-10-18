@@ -74,16 +74,19 @@ app.get('/', function (request, response) {
 app.post('/auth', async function (request, response) {
     const username = request.body.userId;
     const password = request.body.password;
+    console.log(username, password);
 
     if (username && password) {
         try {
             const customer = mongoose.connection.collection('user_records')
                 .find({ _id: 0, first_name: 1, last_name: 1 })
+                console.log(customer)
             if (customer) {
                 request.session.loggedin = true;
                 request.session.username = username;
                 request.session.sessionTimeout = Date.now() + (15 * 60000);
-  
+                
+                console.log('Redirecting now')
                 response.redirect('/dashboard');
             } else {
                   // Render an error page or send an error response
@@ -92,6 +95,7 @@ app.post('/auth', async function (request, response) {
         } catch (error) {
             
         }
+        console.log('We should be redirected by now');
     }
 });
 
