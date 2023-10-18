@@ -1,69 +1,51 @@
 import express from 'express';
-// import mysql2 from 'mysql2';
-import mysql from 'mysql';
+import mongoose from 'mongoose';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import session from 'express-session';
-import MySQLStore from 'express-mysql-session';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import path from 'path';
+import compression from 'compression';
+import dotenv from 'dotenv';
 
-// import { use } from 'passport';
-
-const port = process.env.PORT // || 3000;
-const app = express();
+dotenv.config({path: './config.env'});
+export const app = express();
 
 // Convert import.meta.url to a file path
 const currentFilePath = fileURLToPath(import.meta.url);
 const currentDirName = dirname(currentFilePath);
 const publicDirPath = path.join(currentDirName, 'public');
 
-// console.log('Current directory:', currentDirName); 
+// Setup connection to MongoDB
+mongoose.connect(process.env.MONGODB_CONN_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
 
-// MySQL database connection configuration
-/* export const appDbConnection = mysql2.createConnection({
-  host: 'localhost',
-  user: 'Kaygeea',
-  password: 'gammaray8',
-  database: 'banking_app'
-}); */
+// Create database connection object
+const dbConnection = mongoose.connection;
 
-const sessionStore = new MySQLStore({
-    host: process.env.MYSQL_ADDON_HOST,
-    user: process.env.MYSQL_ADDON_USER,
-    password: process.env.MYSQL_ADDON_PASSWORD,
-    database: process.env.MYSQL_ADDON_DB,
-}, session);
-
-const deployedAppDbConnection = mysql.createConnection({
-    host     : process.env.MYSQL_ADDON_HOST,
-    database : process.env.MYSQL_ADDON_DB,
-    user     : process.env.MYSQL_ADDON_USER,
-    password : process.env.MYSQL_ADDON_PASSWORD
+dbConnection.on('error', console.error.bind(console, 'MongoDB connection error: '));
+dbConnection.once('open', () => {
+    console.log('Connected to MongoDB successfully');
 });
 
-// Connect to the MySQL database
-deployedAppDbConnection.connect((error) => {
-  if (error) {
-    console.error('Error encountered while attempting to connect to Database: ' + error.message);
-    return;
-  }
-  console.log('Connected to MySQL database');
-});
+app.use(compression());
 
 app.use(
     session({
 	    secret: 'secret',
 	    resave: false,
 	    saveUninitialized: false,
-        store: sessionStore,
     })
 );
 
-// app.use(express.static(currentDirName + 'public', { index: 'index.ejs' }));
 app.use(express.static(publicDirPath, { index: 'index.ejs' }));
-app.use(logger('dev'));
+
+if (process.env.NODE_ENV === 'development') {
+    app.use(logger('dev'));
+}
 app.use(cookieParser());
 app.use(express.json());
 app.set('view engine', 'ejs');
@@ -88,72 +70,57 @@ app.get('/', function (request, response) {
     response.render('index');
 });
 
-app.post('/auth', function (request, response) {
+app.post('/auth', async function (request, response) {
     const username = request.body.userId;
     const password = request.body.password;
 
     if (username && password) {
-         const authQuery = `
-            SELECT customer_id, first_name, last_name, username
-            FROM users
-            WHERE username = ?
-            AND password = ?
-        `;
-
-        // Query MySQL database to confirm user credentials
-        deployedAppDbConnection.query(authQuery, [username, password], function (error, results) {
-            // If error occurs during the query
-            if (error) {
-              response.send('An error occurred while processing your request.');
-              return response.end();
-            }
-    
-            if (results.length > 0) {
-              request.session.loggedin = true;
-              request.session.username = username;
-              request.session.sessionTimeout = Date.now() + (15 * 60000);
-
-              response.redirect('/dashboard');
+        try {
+            const customer = mongoose.connection.collection('user_records')
+                .find({ _id: 0, first_name: 1, last_name: 1 })
+            if (customer) {
+                request.session.loggedin = true;
+                request.session.username = username;
+                request.session.sessionTimeout = Date.now() + (15 * 60000);
+  
+                response.redirect('/dashboard');
             } else {
-                // Render an error page or send an error response
-                response.status(401).send('Authentication failed');
+                  // Render an error page or send an error response
+                  response.status(401).send('Authentication failed');
             }
-        })
+        } catch (error) {
+            
+        }
     }
-})
+});
 
-app.get('/dashboard', function (request, response) {
-    // Retrieve username
-    const username = request.session.username;
-
-    // Query MySQL database to retrieve user information
-    const transactionsQuery = `
-        SELECT t.serial_number, t.date_of_transaction, t.transaction_description, t.amount, t.user_id, u.first_name, u.last_name
-        FROM user_1_transaction AS t
-            JOIN users AS u ON t.user_id = u.customer_id
-        WHERE u.username = ?
-        ORDER BY t.serial_number;
-    `;
-
-    deployedAppDbConnection.query(transactionsQuery, [username], function (error, results) {
-        if (error) {
-            console.error('Error querying the database: ', error);
-            return results.status(500).send('Internal Server Error');
+app.get('/dashboard', async function (request, response) {
+    try {
+        const username = request.session.username;
+    
+        // Use Mongoose to query the MongoDB collections
+        const transactions = mongoose.connection.collection('user_1001_transactions')
+            .find().sort({ serial_number: 1 }).toArray();
+    
+        // Fetch first_name and last_name from the 'user_records' collection
+        const customer = await mongoose.connection.collection('user_records').findOne({ username });
+    
+        if (!customer) {
+          return response.status(404).send('User not found');
         }
-        if (results.length > 0) {
-            const firstRow = results[0]; // Access the first row
-            // const userTableId = firstRow.user_id;
-            const firstName = firstRow.first_name;
-            const lastName = firstRow.last_name;
-
-            // Generate random user uuid
-            const userId = 8765432109; // uuidv4().substring(0, 8);
-            const showOverlay = true;
-
-            // Render the user dashboard
-            response.render('userDashboard', { results, userId, firstName, lastName, showOverlay });
-        }
-    });
+    
+        const firstName = customer.first_name;
+        const lastName = customer.last_name;
+    
+        // Generate random user uuid (if needed)
+        const userId = 8765432109; // You can replace this with your logic
+    
+        // Render the user dashboard
+        response.render('userDashboard', { transactions, userId, firstName, lastName, showOverlay: true });
+    } catch (error) {
+        console.error('Error querying MongoDB:', error);
+        response.status(500).send('Internal Server Error');
+    }
 });
 
 app.get('/signoff', function (request, response) {
@@ -168,7 +135,4 @@ app.get('/signoff', function (request, response) {
     });
 });
 
-// Start the server
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-  });
+export default app;
