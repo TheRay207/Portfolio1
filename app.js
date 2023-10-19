@@ -1,13 +1,13 @@
+import dotenv from 'dotenv';
 import express from 'express';
-import mongoose from 'mongoose';
-import { fileURLToPath } from 'url';
+import { MongoClient } from 'mongodb';
+import { URLSearchParams, fileURLToPath } from 'url';
 import { dirname } from 'path';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
-import logger from 'morgan';
+import morgan from 'morgan';
 import path from 'path';
 import compression from 'compression';
-import dotenv from 'dotenv';
 
 dotenv.config({path: './config.env'});
 export const app = express();
@@ -15,22 +15,7 @@ export const app = express();
 // Convert import.meta.url to a file path
 const currentFilePath = fileURLToPath(import.meta.url);
 const currentDirName = dirname(currentFilePath);
-const uri = 'mongodb+srv://user001:tbuKSxq2uJXzQzZe@cluster0.tj2glrw.mongodb.net/?retryWrites=true&w=majority' || process.env.MONGODB_CONN_URI;
 const publicDirPath = path.join(currentDirName, 'public');
-
-// Setup connection to MongoDB
-mongoose.connect(uri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
-
-// Create database connection object
-const dbConnection = mongoose.connection;
-
-dbConnection.on('error', console.error.bind(console, 'MongoDB connection error: '));
-dbConnection.once('open', () => {
-    console.log('Connected to MongoDB successfully');
-});
 
 app.use(compression());
 
@@ -44,9 +29,7 @@ app.use(
 
 app.use(express.static(publicDirPath, { index: 'index.ejs' }));
 
-if (process.env.NODE_ENV === 'development') {
-    app.use(logger());
-}
+app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(express.json());
 app.set('view engine', 'ejs');
@@ -74,58 +57,111 @@ app.get('/', function (request, response) {
 app.post('/auth', async function (request, response) {
     const username = request.body.userId;
     const password = request.body.password;
-    console.log(username, password);
 
     if (username && password) {
         try {
-            const customer = mongoose.connection.collection('user_records')
-                .find({ _id: 0, first_name: 1, last_name: 1 })
-                console.log(customer)
+            // Setup connection to MongoDB
+            const client = await MongoClient.connect(process.env.MONGODB_CONN_URI);
+
+            // Define query parameters
+            const filter = { 'username': username };
+            const projection = {
+                '_id': 0,
+                'customer_id': 1,
+                'first_name': 1, 
+                'last_name': 1, 
+                'username': 1,
+                'password': 0,
+                'registration_date': 0
+            };
+
+            // Create transactions table object - which will return a cursor that points to result set
+            const customersCollection = client.db('customer_data').collection('user_records');
+            const customer = await customersCollection.find({}, { 
+                '_id': 0,
+                'customer_id': 1,
+                'first_name': 1, 
+                'last_name': 1,
+                'username': 1,
+                'password': 0,
+                'registration_date': 0
+                }
+            ).toArray();
+            console.log(customer);
+
+            // Process user 
             if (customer) {
                 request.session.loggedin = true;
-                request.session.username = username;
+                request.session.username = customer[0].username;
                 request.session.sessionTimeout = Date.now() + (15 * 60000);
+
+                // Create objetct of URL queries
+                const URLQueries = {
+                    u_name: customer[0].username,
+                    f_name: customer[0].first_name,
+                    l_name: customer[0].last_name,
+                    c_id: customer[0].customer_id
+                };
+
+                const queryString = new URLSearchParams(URLQueries).toString();
                 
-                console.log('Redirecting now')
-                response.redirect('/dashboard');
+                response.redirect('/dashboard' + '?' + queryString);
+                await client.close();
             } else {
                   // Render an error page or send an error response
                   response.status(401).send('Authentication failed');
+                  await client.close();
             }
         } catch (error) {
             
         }
-        console.log('We should be redirected by now');
     }
 });
 
 app.get('/dashboard', async function (request, response) {
-    try {
-        const username = request.body.userId;
-        console.log(username);
-    
-        // Use Mongoose to query the MongoDB collections
-        const transactions = mongoose.connection.collection('user_1001_transactions')
-            .find().sort({ serial_number: 1 }).toArray();
-    
-        // Fetch first_name and last_name from the 'user_records' collection
-        const customer = await mongoose.connection.collection('user_records').findOne({ username });
-    
-        if (!customer) {
-          return response.status(404).send('User not found');
+
+    if (request.query.u_name) {
+        // Assign customer variables
+        const username = request.query.u_name;
+        const firstName = request.query.f_name;
+        const lastName = request.query.l_name;
+        const customerId = request.query.c_id;
+
+        try {
+            // Setup connection to MongoDB
+            const client = await MongoClient.connect(process.env.MONGODB_CONN_URI);
+
+            // Define database query parameters
+            const filter = { 'user_id': customerId };
+            const projections = {'serial_number': 1,
+                'date_of_transaction': 1,
+                'transaction_description': 1,
+                'amount': 1
+            };
+            const sort = { 'serial_number': 1 };
+
+            // Create transactions table object - which will return a cursor that points to result set
+            const transactionsCollection = client.db('customer_data').collection('user_1001_transactions');
+            const transactions = await transactionsCollection.find(filter, { projections, sort }).toArray();
+            console.log(transactions);
+        
+            if (!transactions) {
+              return response.status(404).send('User not found');
+            }
+
+            // Close the connection
+            await client.close();
+        
+            // Generate random customer acount number (if needed)
+            const customerAcctNum = 8765432109; // REPLACE
+        
+            // Render the user dashboard
+            response.render('userDashboard', { transactions, customerAcctNum, firstName, lastName, showOverlay: true });
+        } catch (error) {
+            console.error('Error querying MongoDB:', error);
+            response.status(500).send('Internal Server Error');
+            await client.close();
         }
-    
-        const firstName = customer.first_name;
-        const lastName = customer.last_name;
-    
-        // Generate random user uuid (if needed)
-        const userId = 8765432109; // You can replace this with your logic
-    
-        // Render the user dashboard
-        response.render('userDashboard', { transactions, userId, firstName, lastName, showOverlay: true });
-    } catch (error) {
-        console.error('Error querying MongoDB:', error);
-        response.status(500).send('Internal Server Error');
     }
 });
 

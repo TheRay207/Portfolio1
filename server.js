@@ -6,9 +6,9 @@ const startServer = async () => {
     dotenv.config({path: './config.env'});
 
     const port = process.env.PORT || 3000;
-    const uri = 'mongodb+srv://user001:tbuKSxq2uJXzQzZe@cluster0.tj2glrw.mongodb.net/?retryWrites=true&w=majority' || process.env.MONGODB_CONN_URI;
 
-    const client = new MongoClient(uri, {
+
+    const client = new MongoClient(process.env.MONGODB_CONN_URI, {
         serverApi: {
         version: ServerApiVersion.v1,
         strict: true,
