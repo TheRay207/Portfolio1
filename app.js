@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import express from 'express';
+import MongoStore from 'connect-mongo';
 import { MongoClient } from 'mongodb';
 import { URLSearchParams, fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -17,23 +18,40 @@ const currentFilePath = fileURLToPath(import.meta.url);
 const currentDirName = dirname(currentFilePath);
 const publicDirPath = path.join(currentDirName, 'public');
 
+// Logger middleware (before session)
+app.use(morgan('dev'));
+
+// Static files middleware
+app.use(express.static(publicDirPath, { index: 'index.ejs' }));
+
+// Body parsing middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Compression middleware
 app.use(compression());
 
+// Cookie parsing middleware
+app.use(cookieParser());
+
+// Session middleware
 app.use(
     session({
-	    secret: 'secret',
-	    resave: false,
-	    saveUninitialized: false,
+        name: 'user-sesh.sid',
+        secret: 'secret',
+        secure: true,
+        maxAge: 1000 * 60 * 60 * 1,
+        resave: false,
+        saveUninitialized: true,
+        store: MongoStore.create({ mongoUrl: process.env.MONGODB_CONN_URI })
     })
 );
 
-app.use(express.static(publicDirPath, { index: 'index.ejs' }));
-
-app.use(morgan('dev'));
-app.use(cookieParser());
-app.use(express.json());
+// View rendering middleware (using EJS)
 app.set('view engine', 'ejs');
-app.use(express.urlencoded({ extended: true }));
+
+
+// Custom timeout middleware
 app.use(function (request, response, next) {
     const currentTime = Date.now();
 
@@ -60,8 +78,9 @@ app.post('/auth', async function (request, response) {
 
     if (username && password) {
         try {
-            // Setup connection to MongoDB
-            const client = await MongoClient.connect(process.env.MONGODB_CONN_URI);
+            // Get MongoDB client connection
+            const client =  await MongoClient.connect(process.env.MONGODB_CONN_URI);
+            // const client =  app.locals.MongoClient;
 
             // Define query parameters
             const filter = { 'username': username };
@@ -119,7 +138,6 @@ app.post('/auth', async function (request, response) {
 });
 
 app.get('/dashboard', async function (request, response) {
-
     if (request.query.u_name) {
         // Assign customer variables
         const username = request.query.u_name;
@@ -128,8 +146,9 @@ app.get('/dashboard', async function (request, response) {
         const customerId = request.query.c_id;
 
         try {
-            // Setup connection to MongoDB
-            const client = await MongoClient.connect(process.env.MONGODB_CONN_URI);
+            // Get MongoDB client connection
+            const client =  await MongoClient.connect(process.env.MONGODB_CONN_URI);
+            // const client =  app.locals.MongoClient;
 
             // Define database query parameters
             const filter = { 'user_id': customerId };
@@ -148,10 +167,6 @@ app.get('/dashboard', async function (request, response) {
             if (!transactions) {
               return response.status(404).send('User not found');
             }
-
-            // Close the connection
-            await client.close();
-        
             // Generate random customer acount number (if needed)
             const customerAcctNum = 8765432109; // REPLACE
         
@@ -160,21 +175,30 @@ app.get('/dashboard', async function (request, response) {
         } catch (error) {
             console.error('Error querying MongoDB:', error);
             response.status(500).send('Internal Server Error');
-            await client.close();
         }
     }
 });
 
-app.get('/signoff', function (request, response) {
-    // Clear the session and log the user out
-    request.session.destroy(function (err) {
-        if (err) {
-            console.error('Error destroying the session:', err);
-        }
+app.get('/signoff', async (request, response) => {
+    const client = request.app.locals.mongoClient;
 
-        // Redirect the user to the login page or any other appropriate page
-        response.redirect('/'); // You can customize the redirect URL
-    });
+    try {
+        // Close the MongoDB connection
+        await client.close();
+
+        // Clear the session and log the user out
+        request.session.destroy(function (err) {
+            if (err) {
+                console.error('Error destroying the session:', err);
+            }
+
+            // Redirect the user to the login page or any other appropriate page
+            response.redirect('/'); // You can customize the redirect URL
+        });
+    } catch (error) {
+        console.error('Error closing the MongoDB connection:', error);
+        response.status(500).send('Internal Server Error');
+    }
 });
 
 export default app;
