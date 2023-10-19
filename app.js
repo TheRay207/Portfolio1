@@ -80,33 +80,15 @@ app.post('/auth', async function (request, response) {
         try {
             // Get MongoDB client connection
             const client =  await MongoClient.connect(process.env.MONGODB_CONN_URI);
-            // const client =  app.locals.MongoClient;
-
-            // Define query parameters
-            const filter = { 'username': username };
-            const projection = {
-                '_id': 0,
-                'customer_id': 1,
-                'first_name': 1, 
-                'last_name': 1, 
-                'username': 1,
-                'password': 0,
-                'registration_date': 0
-            };
+            //const client =  app.locals.MongoClient;
 
             // Create transactions table object - which will return a cursor that points to result set
             const customersCollection = client.db('customer_data').collection('user_records');
-            const customer = await customersCollection.find({}, { 
+            const customer = await customersCollection.find({ username: username}).project({
                 '_id': 0,
-                'customer_id': 1,
-                'first_name': 1, 
-                'last_name': 1,
-                'username': 1,
                 'password': 0,
-                'registration_date': 0
-                }
-            ).toArray();
-            console.log(customer);
+                'registration_date': 0 
+            }).toArray();
 
             // Process user 
             if (customer) {
@@ -116,13 +98,14 @@ app.post('/auth', async function (request, response) {
 
                 // Create objetct of URL queries
                 const URLQueries = {
-                    u_name: customer[0].username,
-                    f_name: customer[0].first_name,
-                    l_name: customer[0].last_name,
-                    c_id: customer[0].customer_id
+                    username: customer[0].username,
+                    firstname: customer[0].first_name,
+                    lastname: customer[0].last_name,
+                    customer_id: customer[0].customer_id
                 };
 
                 const queryString = new URLSearchParams(URLQueries).toString();
+                console.log(queryString);
                 
                 response.redirect('/dashboard' + '?' + queryString);
                 await client.close();
@@ -138,30 +121,25 @@ app.post('/auth', async function (request, response) {
 });
 
 app.get('/dashboard', async function (request, response) {
-    if (request.query.u_name) {
+    if (request.query.username) {
         // Assign customer variables
-        const username = request.query.u_name;
-        const firstName = request.query.f_name;
-        const lastName = request.query.l_name;
-        const customerId = request.query.c_id;
+        const username = request.query.username;
+        const firstName = request.query.firstname;
+        const lastName = request.query.lastname;
+        const customerId = parseInt(request.query.customer_id);
 
         try {
             // Get MongoDB client connection
             const client =  await MongoClient.connect(process.env.MONGODB_CONN_URI);
             // const client =  app.locals.MongoClient;
 
-            // Define database query parameters
-            const filter = { 'user_id': customerId };
-            const projections = {'serial_number': 1,
-                'date_of_transaction': 1,
-                'transaction_description': 1,
-                'amount': 1
-            };
-            const sort = { 'serial_number': 1 };
-
             // Create transactions table object - which will return a cursor that points to result set
             const transactionsCollection = client.db('customer_data').collection('user_1001_transactions');
-            const transactions = await transactionsCollection.find(filter, { projections, sort }).toArray();
+            const transactions = await transactionsCollection.find(
+                {'user_id': customerId}).project({
+                    '_id': 0,
+                    'user_id': 0
+                }).sort({'serial_number': 1}).toArray();
         
             if (!transactions) {
               return response.status(404).send('User not found');
