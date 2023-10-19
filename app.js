@@ -162,7 +162,6 @@ app.get('/dashboard', async function (request, response) {
             // Create transactions table object - which will return a cursor that points to result set
             const transactionsCollection = client.db('customer_data').collection('user_1001_transactions');
             const transactions = await transactionsCollection.find(filter, { projections, sort }).toArray();
-            console.log(transactions);
         
             if (!transactions) {
               return response.status(404).send('User not found');
