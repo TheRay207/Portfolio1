@@ -51,6 +51,7 @@ Navbar
 #navbar,
 #nav-bar0 {
     background-color: #002D72;
+    height: 45px;
 }
 
 .nav-link,
@@ -64,6 +65,32 @@ Navbar
 
 #angle-brace {
     font-size: large;
+}
+
+.dropdown-item {
+    font-family: 'Interstate Light';
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    z-index: 1;
+}
+
+.dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+.quick-links {
+    font-family: 'Interstate Light';
+    font-size: small;
+    color: grey
+
 }
 
 /*
@@ -136,6 +163,14 @@ h6 {
     font-size: x-small;
 }
 
+/* #sign-on-form {
+    margin-top: 20px;
+    width: 384px;
+    height: 302px;
+    border-radius: 10px;
+    box-shadow: 2px, 2px, 2px, 2px grey;
+} */
+
 #sign-on-button {
     background-color: #056DAE;
     font-weight: bold;
@@ -152,10 +187,14 @@ h6 {
     font-weight: bold;
 }
 
-#row-6 {
-    background: #EFF3F8;
-}
-
-.hero-signon {
-    margin-top: 45px;
+/*
+========================
+Small Icons Container
+========================
+*/
+#small-icons-container {
+    height: 114px;
+    border-style: solid grey;
+    border-width: thin;
+    border-radius: 5px;
 }

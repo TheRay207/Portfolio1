@@ -1,16 +1,17 @@
+import compression from 'compression';
+import cookieParser from 'cookie-parser';
+import { dirname } from 'path';
 import dotenv from 'dotenv';
 import express from 'express';
-import MongoStore from 'connect-mongo';
+import flash from 'connect-flash';
 import { MongoClient } from 'mongodb';
-import { URLSearchParams, fileURLToPath } from 'url';
-import { dirname } from 'path';
-import session from 'express-session';
-import cookieParser from 'cookie-parser';
+import MongoStore from 'connect-mongo';
 import morgan from 'morgan';
 import path from 'path';
-import compression from 'compression';
+import session from 'express-session';
+import { URLSearchParams, fileURLToPath } from 'url';
 
-dotenv.config({path: './config.env'});
+dotenv.config({path: './.env'});
 export const app = express();
 
 // Convert import.meta.url to a file path
@@ -47,9 +48,11 @@ app.use(
     })
 );
 
-// View rendering middleware (using EJS)
-app.set('view engine', 'ejs');
+// Flash message middleware
+app.use(flash());
 
+// Setting wiev engine as EJS
+app.set('view engine', 'ejs');
 
 // Custom timeout middleware
 app.use(function (request, response, next) {
@@ -68,10 +71,13 @@ app.use(function (request, response, next) {
     next();
 });
 
+// GET home & login page
 app.get('/', function (request, response) {
-    response.render('index');
+    const errorMessage = request.flash('error');
+    response.render('index', { errorMessage });
 });
 
+// POST username and password for authentication and login authorization
 app.post('/auth', async function (request, response) {
     const username = request.body.userId;
     const password = request.body.password;
@@ -84,14 +90,18 @@ app.post('/auth', async function (request, response) {
 
             // Create transactions table object - which will return a cursor that points to result set
             const customersCollection = client.db('customer_data').collection('user_records');
-            const customer = await customersCollection.find({ username: username}).project({
+            const customer = await customersCollection.find({ username: username, password: password}).project({
                 '_id': 0,
                 'password': 0,
                 'registration_date': 0 
             }).toArray();
 
             // Process user 
-            if (customer) {
+            if (customer.length !== 1) {
+                request.flash('error', 'Invalid username and password');
+                response.redirect('/');
+                await client.close();
+            } else {
                 request.session.loggedin = true;
                 request.session.username = customer[0].username;
                 request.session.sessionTimeout = Date.now() + (15 * 60000);
@@ -105,21 +115,21 @@ app.post('/auth', async function (request, response) {
                 };
 
                 const queryString = new URLSearchParams(URLQueries).toString();
-                console.log(queryString);
                 
                 response.redirect('/dashboard' + '?' + queryString);
-                await client.close();
-            } else {
-                  // Render an error page or send an error response
-                  response.status(401).send('Authentication failed');
-                  await client.close();
             }
         } catch (error) {
-            
+            // Handle MongoDB connection error
+            console.error('Error connecting to MongoDB:', error);
+            response.status(500).send('Internal Server Error');
         }
+    } else {
+        // Where a user does not enter either a username or password
+        response.status(400).send('Kindly enter both username and password');
     }
 });
 
+// GET user dashboard after login authorization
 app.get('/dashboard', async function (request, response) {
     if (request.query.username) {
         // Assign customer variables
@@ -153,6 +163,9 @@ app.get('/dashboard', async function (request, response) {
             console.error('Error querying MongoDB:', error);
             response.status(500).send('Internal Server Error');
         }
+    } else {
+        // Where a user does not enter either a username or password
+        response.status(400).send('Kindly enter both username and password');
     }
 });
 

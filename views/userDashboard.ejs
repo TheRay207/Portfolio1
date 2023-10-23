@@ -91,24 +91,26 @@
                 <div style="font-size: x-small;">
                     <p id="login-info" class="ps-lg-5 text-md-nowrap">Your last sign on was <span id="last-sign-on-value"></span> <a id="prof-settings" href="#">Profile & Settings</a></p>
                     <script>
-                        // Compute user sign on date
-                        const dateToday = new Date();
-                        dateToday.setHours(dateToday.getHours() - 3);
-                        const lastSignOnDayDate = dateToday.toDateString();
-                        const lastSignOnTime = () => {
-                            const timeString = dateToday.toTimeString();
-
-                        // Get index of 'GMT' & '('
-                        const gmtIndex = timeString.indexOf('GMT');
-                        const openParenIndex = timeString.indexOf('(');
-
-                        // Slice string to remove timezone offset
-                        const slicedString = timeString.slice(0, gmtIndex) + timeString.slice(openParenIndex);
-                        return slicedString;
-                        }
-                        const lastSignOn = lastSignOnDayDate + ' at ' + lastSignOnTime();
                         const lastSignOnElement = document.querySelector('#last-sign-on-value');
-                        lastSignOnElement.textContent = lastSignOn;
+                        const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                        const currentTime = new Date();
+
+                        // Subtract 3 hours from the current time
+                        currentTime.setHours(currentTime.getHours() - 3);
+
+                        const formattedDate = currentTime.toLocaleString('en-US', {
+                            timeZone: userTimeZone,
+                            year: 'numeric',
+                            month: 'short',
+                            weekday: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
+                            timeZoneName: 'short'
+                        });
+
+                        lastSignOnElement.textContent = formattedDate;
                     </script>
                 </div>
             </div>
